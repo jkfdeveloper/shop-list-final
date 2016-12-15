@@ -12,16 +12,26 @@ var itemTemplate = (
 		      		'<button class="js-shopping-item-delete">' +
 		        	'<span class="button-label">delete</span>' +
 		      		'</button>' +
+		      		'<button class="refresh">' +
+		      		'<span class="button-label">refresh</span>'+
+		      		'</button>'+
 	    		'</div>' +
   		'</li>'
 	)
 
-function addItem(state, item){
-	
+function addItem(state, item, element){
+	var newItemObj = {
+			displayName:item,
+			checkedOff: false
+		}
+
 	state.items.push({
 	displayName: item,
 	checkedOff: false
 	});
+	//new
+	var htmlToAdd = renderItem(newItemObj);
+	element.append(htmlToAdd);
 }
 var renderList = function(state, element) {
 	element.empty();
@@ -36,6 +46,9 @@ var renderList = function(state, element) {
     
     
 };
+function UpdateAddItem(){
+
+}
 
 function renderItem(item){
 	var element = $(itemTemplate);
@@ -70,9 +83,9 @@ $(function(){
 		if (newItem == ''){
 			return;
 			}else{
-				addItem(state, newItem);
+				addItem(state, newItem , $('.shopping-list'));
 		
-				renderList(state, $('.shopping-list'));
+				//renderList(state, $('.shopping-list'));
 				this.reset();
 			}
 	})
@@ -88,8 +101,18 @@ $(function(){
 			var buttonType = $(this);
 
 			if (buttonType.is('[class="js-shopping-item-toggle"]')){
-				var checkedItem = $(event.target.closest('li')).find('.shopping-item');
-				
+				var checkedItem = $(event.target.closest('li'));//.find('.shopping-item');
+				var num = checkedItem.index();
+				state.items[num].checkedOff = true;
+				checkedItem.find('.shopping-item').toggleClass('shopping-item__checked');
+				if (state.items[num].checkedOff == true){
+							state.items[num].checkedOff = false;
+						}else{
+							state.items[num].checkedOff = true;
+						}
+				//state.splice(num, 1);
+				//checkedItem.remove();
+				/*
 				for (i=0; i < state.items.length; i++){
 					if (state.items[i].displayName == checkedItem.text()){
 						if (state.items[i].checkedOff == true){
@@ -99,18 +122,24 @@ $(function(){
 						}	
 						checkedItem.toggleClass('shopping-item__checked', state.items[i].checkedOff);
 					}
+				}*/
 				}
 
-				}
 			//DELETE
 			if (buttonType.is('[class="js-shopping-item-delete"]')){
-				var toRemove =  $(event.target.closest('li')).find('.shopping-item').text();
-				$(event.target.closest('li')).remove();
-				for (i=0; i < state.items.length; i++){
+				//var toRemove =  $(event.target.closest('li')).find('.shopping-item').text();
+				var toRemove =  $(event.target.closest('li'));
+				toRemove.remove();
+				state.items.splice([toRemove.index()],1);
+				//$(event.target.closest('li')).remove();
+				/*for (i=0; i < state.items.length; i++){
 					if (state.items[i].displayName == toRemove){
 						state.items.splice([i], 1);
 					}
-				}			
-		}			
+				}	*/		
+				}	
+				if (buttonType.is(['class="refresh'])){
+					renderList(state, $('.shopping-list'));
+				}
 		})	
 })
